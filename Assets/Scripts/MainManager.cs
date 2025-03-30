@@ -12,6 +12,9 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+
+    public Text pNameText;
+    public Text highScoreText;
     
     private bool m_Started = false;
     private int m_Points;
@@ -36,6 +39,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        SetPlayerNameText();
     }
 
     private void Update()
@@ -66,11 +71,37 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+
+        if (m_Points > PersistentData.HSInstance.score)
+        {
+            PersistentData.HSInstance.name = PersistentData.pName;
+            PersistentData.HSInstance.score = m_Points;
+            highScoreText.text = "Name:" + PersistentData.HSInstance.name + 
+                    " with score: " + PersistentData.HSInstance.score;
+        }
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        WriteHighScore();
+    }
+
+    public void SetPlayerNameText()
+    {
+        pNameText.text = "Name:" + PersistentData.pName;
+        highScoreText.text = "Name:" + PersistentData.HSInstance.name + 
+                            " with score: " + PersistentData.HSInstance.score;
+    }
+
+    public void WriteHighScore()
+    {
+        if (m_Points >= PersistentData.HSInstance.score)
+        {
+            Debug.Log("RecordNewHighScore");
+            PersistentData.RecordNewHighScore(m_Points, PersistentData.pName);
+        }
     }
 }
